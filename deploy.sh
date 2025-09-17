@@ -9,5 +9,9 @@ kubectl apply -f k8s/
 # Wait for deployment to be ready
 kubectl rollout status deployment/wisecow-deployment
 
+# Add hosts entry automatically
+if ! grep -q "wisecow.local" /etc/hosts; then
+    echo "127.0.0.1 wisecow.local" | sudo tee -a /etc/hosts
+fi
+
 echo "Deployment complete! Access at https://wisecow.local"
-echo "Add '127.0.0.1 wisecow.local' to your /etc/hosts file"
