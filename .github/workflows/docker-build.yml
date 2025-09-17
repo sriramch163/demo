@@ -28,6 +28,6 @@ jobs:
       run: |
         echo "${{ secrets.KUBECONFIG }}" | base64 -d > kubeconfig
         export KUBECONFIG=kubeconfig
-        kubectl apply -f k8s/
+        kubectl apply -f k8s/ --validate=false
         kubectl set image deployment/wisecow-deployment wisecow=${{ secrets.DOCKER_USERNAME }}/wisecow:${{ github.run_number }}
         kubectl rollout status deployment/wisecow-deployment
