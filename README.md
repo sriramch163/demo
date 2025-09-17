@@ -17,12 +17,25 @@ sudo apt install fortune-mod cowsay -y
 # Problem Statement
 Deploy the wisecow application as a k8s app
 
-## Requirement
-1. Create Dockerfile for the image and corresponding k8s manifest to deploy in k8s env. The wisecow service should be exposed as k8s service.
-2. Github action for creating new image when changes are made to this repo
-3. [Challenge goal]: Enable secure TLS communication for the wisecow app.
+## Features Implemented
+✅ Dockerfile and Kubernetes manifests  
+✅ GitHub Actions CI/CD pipeline  
+✅ Continuous Deployment to Kubernetes  
+✅ TLS/HTTPS support with cert-manager  
 
-## Expected Artifacts
-1. Github repo containing the app with corresponding dockerfile, k8s manifest, any other artifacts needed.
-2. Github repo with corresponding github action.
-3. Github repo should be kept private and the access should be enabled for following github IDs: nyrahul
+## Quick Deploy
+```bash
+# Update domain in k8s/wisecow-ingress.yaml and k8s/cert-manager.yaml
+./deploy.sh
+```
+
+## GitHub Secrets Required
+- `DOCKER_USERNAME`: Docker Hub username
+- `DOCKER_PASSWORD`: Docker Hub password  
+- `KUBECONFIG`: Base64 encoded kubeconfig for deployment
+
+## TLS Setup
+1. Install NGINX Ingress Controller
+2. Update domain in `k8s/wisecow-ingress.yaml`
+3. Update email in `k8s/cert-manager.yaml`
+4. Deploy using `./deploy.sh`

@@ -2,8 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: wisecow-deployment
+  namespace: default
 spec:
-  replicas: 1   # optional, default is 1
+  replicas: 2
   selector:
     matchLabels:
       app: wisecow
@@ -17,3 +18,10 @@ spec:
           image: sriram084/wisecow:latest
           ports:
             - containerPort: 4499
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"

@@ -2,6 +2,7 @@
 
 SRVPORT=4499
 RSPFILE=response
+TLS_ENABLED=${TLS_ENABLED:-false}
 
 rm -f $RSPFILE
 mkfifo $RSPFILE
@@ -12,15 +13,18 @@ get_api() {
 }
 
 handleRequest() {
-    # 1) Process the request
 	get_api
 	mod=`fortune`
 
 cat <<EOF > $RSPFILE
-HTTP/1.1 200
+HTTP/1.1 200 OK
+Content-Type: text/html
+Connection: close
 
-
-<pre>`cowsay $mod`</pre>
+<!DOCTYPE html>
+<html><head><title>Wisecow</title></head><body>
+<pre>`cowsay "$mod"`</pre>
+</body></html>
 EOF
 }
 
@@ -35,7 +39,7 @@ prerequisites() {
 
 main() {
 	prerequisites
-	echo "Wisdom served on port=$SRVPORT..."
+	echo "Wisdom served on port=$SRVPORT (TLS: $TLS_ENABLED)..."
 
 	while [ 1 ]; do
 		cat $RSPFILE | nc -lN $SRVPORT | handleRequest
