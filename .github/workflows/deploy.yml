@@ -14,11 +14,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Configure kubectl
-      uses: azure/k8s-set-context@v3
-      with:
-        method: kubeconfig
-        kubeconfig: ${{ secrets.KUBECONFIG }}
+    - name: Setup kubeconfig
+      run: |
+        echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
+        chmod 600 ~/.kube/config
     
     - name: Deploy to Kubernetes
       run: |
