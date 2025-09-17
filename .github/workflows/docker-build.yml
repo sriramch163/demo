@@ -26,4 +26,3 @@ jobs:
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/wisecow:latest,${{ secrets.DOCKER_USERNAME }}/wisecow:${{ github.run_number }}
         
-####
