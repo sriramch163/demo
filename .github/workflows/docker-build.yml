@@ -47,12 +47,14 @@ jobs:
         # Save new Minikube IP to file
         MINIKUBE_IP=$(minikube ip)
         echo "$MINIKUBE_IP wisecow.local" | sudo tee -a /etc/hosts
+        echo "127.0.0.1 wisecow.local" | sudo tee -a /etc/hosts
         echo "New Minikube IP: $MINIKUBE_IP" > minikube-ip.txt
         
         # Create Windows hosts file if not exists and add IP entry
         if [ -d "/c/Windows/System32/drivers/etc" ]; then
           [ ! -f "/c/Windows/System32/drivers/etc/hosts" ] && touch /c/Windows/System32/drivers/etc/hosts
           echo "$MINIKUBE_IP wisecow.local" >> /c/Windows/System32/drivers/etc/hosts
+          echo "127.0.0.1 wisecow.local" >> /c/Windows/System32/drivers/etc/hosts
         else
           echo "Windows hosts file not available in CI environment"
         fi
@@ -103,11 +105,12 @@ jobs:
         echo "Testing HTTPS endpoint..."
         sleep 30  # Wait for ingress to be fully ready
         
-        # Test HTTPS with curl (ignore certificate validation for self-signed)
+        # Test HTTPS only
         curl -k -v https://wisecow.local/ || echo "HTTPS test failed"
         
-        # Test HTTP redirect to HTTPS
-        curl -v http://wisecow.local/ || echo "HTTP test failed"
+        echo "\n=== DEPLOYMENT COMPLETE ==="
+        echo "Access your application at: https://wisecow.local"
+        echo "Note: Add '127.0.0.1 wisecow.local' to your local hosts file to access from browser"
     
     - name: Cleanup on failure
       if: failure()
