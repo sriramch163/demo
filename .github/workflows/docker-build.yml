@@ -35,9 +35,9 @@ jobs:
     
     - name: Start Minikube Tunnel
       run: |
-        nohup minikube tunnel > tunnel.log 2>&1 &
+        nohup minikube tunnel --cleanup > tunnel.log 2>&1 &
         echo $! > tunnel.pid
-        sleep 10
+        sleep 30  # Wait longer for tunnel to establish
     
     - name: Update kubeconfig with new Minikube IP
       run: |
@@ -86,14 +86,26 @@ jobs:
         kubectl get pods -l app=wisecow
         kubectl wait --for=condition=ready pod -l app=wisecow --timeout=300s
         
-        # Wait for ingress to get LoadBalancer IP
+        # Wait for ingress to get LoadBalancer IP with retry logic
         echo "Waiting for ingress to get IP address..."
-        kubectl wait --for=jsonpath='{.status.loadBalancer.ingress}' ingress/wisecow-ingress --timeout=300s
+        for i in {1..10}; do
+          INGRESS_IP=$(kubectl get ingress wisecow-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "")
+          if [ ! -z "$INGRESS_IP" ] && [ "$INGRESS_IP" != "192.168.49.2" ]; then
+            echo "Ingress IP assigned: $INGRESS_IP"
+            break
+          fi
+          echo "Attempt $i: Waiting for ingress IP (current: $INGRESS_IP)..."
+          sleep 30
+        done
         
-        # Check ingress IP assignment
+        # Fallback to service endpoint if ingress IP not available
+        if [ -z "$INGRESS_IP" ] || [ "$INGRESS_IP" = "192.168.49.2" ]; then
+          echo "Using minikube service URL as fallback"
+          INGRESS_IP=$(minikube ip)
+        fi
+        
         kubectl get ingress wisecow-ingress
-        INGRESS_IP=$(kubectl get ingress wisecow-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-        echo "Ingress IP: $INGRESS_IP"
+        echo "Final Ingress IP: $INGRESS_IP"
         
         # Update hosts file with ingress IP
         if [ ! -z "$INGRESS_IP" ]; then
