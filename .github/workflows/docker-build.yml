@@ -142,13 +142,11 @@ jobs:
         
         echo "Kubeconfig saved with tls/ directory paths"
     
-    - name: Upload kubeconfig and certificates
+    - name: Upload kubeconfig
       uses: actions/upload-artifact@v4
       with:
-        name: kubeconfig-with-certs
-        path: |
-          kubeconfig.yaml
-          tls/
+        name: kubeconfig
+        path: kubeconfig.yaml
     
     - name: Cleanup on failure
       if: failure()
