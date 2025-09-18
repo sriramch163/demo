@@ -131,6 +131,11 @@ jobs:
         echo "kubectl get svc"
         echo "kubectl get ingress"
     
+    - name: Save kubeconfig for local access
+      run: |
+        kubectl config view --raw > kubeconfig.yaml
+        echo "Kubeconfig saved to kubeconfig.yaml"
+    
     - name: Upload kubeconfig
       uses: actions/upload-artifact@v4
       with:
