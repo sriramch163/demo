@@ -118,6 +118,25 @@ jobs:
         echo "Access your application at: https://wisecow.local"
         echo "Note: Add '127.0.0.1 wisecow.local' to your local hosts file to access from browser"
     
+    - name: Display cluster status for local access
+      run: |
+        echo "\n=== CLUSTER STATUS ==="
+        kubectl get pods
+        kubectl get svc
+        kubectl get ingress
+        
+        echo "\n=== LOCAL ACCESS COMMANDS ==="
+        echo "export KUBECONFIG=/path/to/downloaded/kubeconfig.yaml"
+        echo "kubectl get pods"
+        echo "kubectl get svc"
+        echo "kubectl get ingress"
+    
+    - name: Upload kubeconfig
+      uses: actions/upload-artifact@v4
+      with:
+        name: kubeconfig
+        path: kubeconfig.yaml
+    
     - name: Cleanup on failure
       if: failure()
       run: |
@@ -126,4 +145,3 @@ jobs:
           kill $(cat tunnel.pid) || true
         fi
         minikube stop || true
-####
