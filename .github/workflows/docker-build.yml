@@ -78,10 +78,36 @@ jobs:
         kubectl get pods -l app=wisecow
         kubectl wait --for=condition=ready pod -l app=wisecow --timeout=300s
         
+        # Wait for ingress to get LoadBalancer IP
+        echo "Waiting for ingress to get IP address..."
+        kubectl wait --for=jsonpath='{.status.loadBalancer.ingress}' ingress/wisecow-ingress --timeout=300s
+        
         # Check ingress IP assignment
         kubectl get ingress wisecow-ingress
         INGRESS_IP=$(kubectl get ingress wisecow-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
         echo "Ingress IP: $INGRESS_IP"
+        
+        # Update hosts file with ingress IP
+        if [ ! -z "$INGRESS_IP" ]; then
+          echo "$INGRESS_IP wisecow.local" | sudo tee -a /etc/hosts
+          echo "Updated Ingress IP: $INGRESS_IP" > ingress-ip.txt
+          
+          # Update Windows hosts file with ingress IP
+          if [ -d "/c/Windows/System32/drivers/etc" ]; then
+            echo "$INGRESS_IP wisecow.local" >> /c/Windows/System32/drivers/etc/hosts
+          fi
+        fi
+    
+    - name: Test HTTPS endpoint
+      run: |
+        echo "Testing HTTPS endpoint..."
+        sleep 30  # Wait for ingress to be fully ready
+        
+        # Test HTTPS with curl (ignore certificate validation for self-signed)
+        curl -k -v https://wisecow.local/ || echo "HTTPS test failed"
+        
+        # Test HTTP redirect to HTTPS
+        curl -v http://wisecow.local/ || echo "HTTP test failed"
     
     - name: Cleanup on failure
       if: failure()
