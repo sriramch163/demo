@@ -66,6 +66,12 @@ jobs:
     
     - name: Deploy to MINIKUBE CLUSTER
       run: |
+        # Wait for ingress controller to be ready
+        kubectl wait --namespace ingress-nginx \
+          --for=condition=ready pod \
+          --selector=app.kubernetes.io/component=controller \
+          --timeout=300s
+        
         # Create TLS secret from existing certificates
         kubectl create secret tls wisecow-tls \
           --cert=tls/tls.crt \
