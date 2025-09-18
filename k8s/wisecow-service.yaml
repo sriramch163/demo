@@ -11,4 +11,3 @@ spec:
   - port: 4499
     targetPort: 4499
     protocol: TCP
-    ###
