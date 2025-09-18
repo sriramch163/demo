@@ -133,30 +133,8 @@ jobs:
     
     - name: Save kubeconfig for local access
       run: |
-        # Generate kubeconfig with local certificate paths
-        MINIKUBE_IP=$(minikube ip)
-        cat > kubeconfig.yaml << EOF
-apiVersion: v1
-clusters:
-- cluster:
-    certificate-authority: tls/ca.crt
-    server: https://$MINIKUBE_IP:8443
-  name: minikube
-contexts:
-- context:
-    cluster: minikube
-    namespace: default
-    user: minikube
-  name: minikube
-current-context: minikube
-kind: Config
-users:
-- name: minikube
-  user:
-    client-certificate: tls/client.crt
-    client-key: tls/client.key
-EOF
-        echo "Kubeconfig with local paths saved to kubeconfig.yaml"
+        kubectl config view --raw > kubeconfig.yaml
+        echo "Kubeconfig saved to kubeconfig.yaml"
     
     - name: Upload kubeconfig
       uses: actions/upload-artifact@v4
